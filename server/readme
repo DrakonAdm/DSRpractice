@@ -1,0 +1,24 @@
+# Шаг 1: Клонирование репозитория
+Склонируйте репозиторий с помощью команды git clone:
+
+git clone https://github.com/DrakonAdm/DSRpractice.git
+
+# Шаг 2: Установка зависимостей
+Перейдите в корневую папку проекта и запустите команду mvn install, чтобы установить все необходимые зависимости:
+
+cd ./server/app
+mvn install
+
+# Шаг 3: Настройка базы данных
+Откройте файл application.properties в папке src/main/resources и настройте параметры подключения к вашей базе данных:
+
+spring.datasource.url=jdbc:postgresql://localhost:5432/db_name
+spring.datasource.username=db_username
+spring.datasource.password=db_password
+
+# Шаг 4: Запуск приложения
+Запустите приложение с помощью команды mvn spring-boot:run:
+
+mvn spring-boot:run
+
+После запуска приложения вы можете открыть его в браузере по адресу http://localhost:8080.
