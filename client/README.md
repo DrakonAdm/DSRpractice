@@ -8,6 +8,9 @@ In the project directory, you can run:
 
 ### `npm start`
 
+Before entering this command, create a file .env along the path ./client and add REACT_APP_API_URL=' to ithttp://localhost:8080 /'
+http://localhost:8080/ - default url for server requests spring boot
+
 Runs the app in the development mode.\
 Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
 
