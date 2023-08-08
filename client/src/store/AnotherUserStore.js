@@ -2,17 +2,7 @@ import {makeAutoObservable} from "mobx";
 
 export default class AnotherUserStore {
     constructor() {
-        this._anotherUser = {
-            id: 2,
-            name: 'Витя',
-            surname: 'Новиков',
-            date: '2001-11-27',
-            phone: '8800',
-            city: 'Воронеж',
-            country: 'Россия',
-            description: 'Всё Хорошо',
-            isFriend: false,
-        };
+        this._anotherUser = []
         makeAutoObservable(this)
     }
 

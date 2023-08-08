@@ -1,48 +1,64 @@
 import React, {useContext} from 'react';
 import {Context} from "../../index";
-import {Navigate} from "react-router-dom";
-import { AUTH_ROUTE } from "../../utils/consts";
+import {Navigate, useNavigate} from "react-router-dom";
+import {ANOTHER_PROFILE_ROUTE, AUTH_ROUTE} from "../../utils/consts";
 import ListGroup from 'react-bootstrap/ListGroup';
 import Card from "react-bootstrap/Card";
 import {Container} from "react-bootstrap";
+import {getListFriend} from "../../api/friendAPI";
+import {getAnotherProfile} from "../../api/personAPI";
 
 
 
-const ListFriend = () => {
-    const { user, lists } = useContext(Context);
+const ListFriend = async () => {
+    const navigate = useNavigate();
+    const ctx = useContext(Context);
+    const userStore = ctx.user
 
-    if (!user.isAuth){
+    const {anotherUser} = useContext(Context)
+
+    const user = userStore.user ? userStore.user : {}
+
+    const lists = (await getListFriend(user.personProfileDto.id)).data.friendsList
+
+    if (!userStore || !user || !userStore.isAuth) {
         return <Navigate to={AUTH_ROUTE} replace/>
     }
 
-    const openProfile = (id) => {
-        // Logic to open the profile with the given id
-        // You can navigate to the profile page using a router or another approach
+    const openProfile = async (id) => {
+        try {
+            const responce = getAnotherProfile(user.personProfileDto.id, id)
+            const anotherProfile = (await responce).data.anotherProfileDto;
+            anotherUser.setAnotherUser(anotherProfile)
+            navigate(ANOTHER_PROFILE_ROUTE);
+        } catch (error) {
+            alert("Неверный формат данных")
+        }
     };
 
 
     return (
         <Container
             className="d-flex justify-content-center align-items-center"
-            style={{ height: window.innerHeight - 54 }}
+            style={{height: window.innerHeight - 54}}
         >
-            <Card style={{ width: 600 }} className="p-5">
+            <Card style={{width: 600}} className="p-5">
                 <h2 className="m-auto">Ваши друзья</h2>
-                <div style={{ maxHeight: '400px', overflowY: 'auto' }}>
+                <div style={{maxHeight: '400px', overflowY: 'auto'}}>
                     <ListGroup as="ol">
-                        {lists.listFriend.map((friend) => (
+                        {lists.map((friendsList) => (
                             <ListGroup.Item
                                 as="li"
-                                key={friend.id}
+                                key={friendsList.id}
                                 className="list-group-item-action"
-                                onClick={() => openProfile(friend.id)}
-                                style={{ cursor: 'pointer' }}
+                                onClick={() => openProfile(friendsList.id)}
+                                style={{cursor: 'pointer'}}
                             >
                                 <div className="ms-2 me-auto">
                                     <div className="fw-bold">
-                                        {friend.name} {friend.surname}
+                                        {friendsList.name} {friendsList.surname}
                                     </div>
-                                    {friend.date}
+                                    {friendsList.date}
                                 </div>
                             </ListGroup.Item>
                         ))}

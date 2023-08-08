@@ -1,50 +1,79 @@
 import React, {useContext} from 'react';
 import {Context} from "../../index";
-import {Link, Navigate} from "react-router-dom";
-import {AUTH_ROUTE, PROFILE_ROUTE} from "../../utils/consts";
+import {Link, Navigate, useNavigate} from "react-router-dom";
+import {
+    ANOTHER_PROFILE_ROUTE,
+    AUTH_ROUTE,
+    CHANGE_PROFILE_ROUTE,
+    LIST_INVITE_ROUTE,
+    PROFILE_ROUTE
+} from "../../utils/consts";
 import {Container} from "react-bootstrap";
 import Card from "react-bootstrap/Card";
 import ListGroup from "react-bootstrap/ListGroup";
 import Button from "react-bootstrap/Button";
+import {acceptInvite, deleteInviteAPI, getListFriend, getListInvite} from "../../api/friendAPI";
+import {getAnotherProfile, updatePassword} from "../../api/personAPI";
 
-const ListInvite = () => {
-    const { user, lists } = useContext(Context);
+const ListInvite = async () => {
+    const navigate = useNavigate();
+    const ctx = useContext(Context);
+    const userStore = ctx.user
+    const user = userStore.user ? userStore.user : {}
 
-    if (!user.isAuth){
+    const {anotherUser} = useContext(Context)
+
+    const lists = (await getListInvite(user.personProfileDto.id)).data.unseenInviteFriends
+
+    if (!userStore || !user || !userStore.isAuth) {
         return <Navigate to={AUTH_ROUTE} replace/>
     }
 
-    const openProfile = (id) => {
-        // Logic to open the profile with the given id
-        // You can navigate to the profile page using a router or another approach
+
+    const openProfile = async (id) => {
+        try {
+            const responce = getAnotherProfile(user.personProfileDto.id, id)
+            const anotherProfile = (await responce).data.anotherProfileDto;
+            anotherUser.setAnotherUser(anotherProfile)
+            navigate(ANOTHER_PROFILE_ROUTE);
+        } catch (error) {
+            alert("Неверный формат данных")
+        }
     };
 
-    const deleteInvite = (id) => {
-        // Logic to open the profile with the given id
-        // You can navigate to the profile page using a router or another approach
+    const deleteInvite = async (id) => {
+        try {
+            const responce = deleteInviteAPI(id)
+            navigate(LIST_INVITE_ROUTE);
+        } catch (error) {
+            alert("Неверный формат данных")
+        }
     };
 
-    const addFriend = (id) => {
-        // Logic to open the profile with the given id
-        // You can navigate to the profile page using a router or another approach
+    const addFriend = async (id) => {
+        try {
+            const responce = acceptInvite(id)
+            navigate(LIST_INVITE_ROUTE);
+        } catch (error) {
+            alert("Неверный формат данных")
+        }
     };
 
-    console.log(lists)
 
     return (
         <Container
             className="d-flex justify-content-center align-items-center"
-            style={{ height: window.innerHeight - 54 }}
+            style={{height: window.innerHeight - 54}}
         >
-            <Card style={{ width: 600 }} className="p-5">
-                <h2 className="m-auto">Ваши друзья</h2>
-                <div style={{ maxHeight: '400px', overflowY: 'auto' }}>
+            <Card style={{width: 600}} className="p-5">
+                <h2 className="m-auto">Заявки в друзья</h2>
+                <div style={{maxHeight: '400px', overflowY: 'auto'}}>
                     <ListGroup as="ol">
-                        {lists.listInvite.map((invite) => (
+                        {lists.map((invite) => (
                             <ListGroup.Item
                                 as="li"
                                 key={invite.id}
-                                style={{ cursor: 'pointer' }}
+                                style={{cursor: 'pointer'}}
                             >
                                 <div className="ms-2 me-auto">
                                     <div className="fw-bold">
@@ -58,7 +87,8 @@ const ListInvite = () => {
                                 </div>
                                 <div>
                                     <Button variant="success" onClick={() => addFriend(invite.id)}>Добавить</Button>
-                                    <Button variant="danger" className="mx-2" onClick={() => deleteInvite(invite.id)}>Отказать</Button>
+                                    <Button variant="danger" className="mx-2"
+                                            onClick={() => deleteInvite(invite.id)}>Отказать</Button>
                                 </div>
                             </ListGroup.Item>
                         ))}
