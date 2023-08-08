@@ -1,6 +1,7 @@
 package com.csa.app.controller;
 
 import com.csa.app.dto.request.PersonDto;
+import com.csa.app.dto.request.PersonDtoRequest;
 import com.csa.app.dto.request.search.SearchDto;
 import com.csa.app.dto.response.BriefPersonDto;
 import com.csa.app.dto.response.PersonProfileDto;
@@ -19,8 +20,8 @@ import org.springframework.web.bind.annotation.*;
 public class PersonController {
     private final PersonDataService personDataService;
 
-    @PutMapping("/{id}/password")
-    public ResponseEntity<?> updatePassword(@PathVariable("id") Long id, @RequestParam("pass") String pass) {
+    @PutMapping("/updatePassword")
+    public ResponseEntity<?> updatePassword(@RequestParam("id") Long id, @RequestParam("pass") String pass) {
         PersonProfileDto personProfileDto = personDataService.updatePassword(id, pass);
         if (personProfileDto != null) {
             return ResponseEntity.ok(personProfileDto);
@@ -29,17 +30,29 @@ public class PersonController {
         }
     }
 
-    @PutMapping("/update")
-    public ResponseEntity<?> updateData(@RequestBody PersonDto dto) {
+    @PostMapping("/update")
+    public ResponseEntity<?> updateData(@RequestBody PersonDtoRequest dto) {
         return personDataService.updateData(dto);
     }
 
     @GetMapping("/by-username")
-    public ResponseEntity<?> getUserByUsername(@RequestParam("email") @Email(message = "Invalid email format")
+    public ResponseEntity<?> getUserByUsername(@RequestBody @Email(message = "Invalid email format")
                                                @NotEmpty(message = "Email cannot be empty") String email) {
         BriefPersonDto briefPersonDto = personDataService.getUserByUsername(email);
         if (briefPersonDto != null) {
             return ResponseEntity.ok(briefPersonDto);
+        } else {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body(new AppErrorDto(HttpStatus.BAD_REQUEST.value(), "Пользователь с данным email не найден"));
+        }
+    }
+
+    @GetMapping("/profile")
+    public ResponseEntity<?> getProfile(@RequestParam("email") @Email(message = "Invalid email format")
+                                               @NotEmpty(message = "Email cannot be empty") String email) {
+        PersonProfileDto personProfileDto = personDataService.getProfile(email);
+        if (personProfileDto != null) {
+            return ResponseEntity.ok(personProfileDto);
         } else {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                     .body(new AppErrorDto(HttpStatus.BAD_REQUEST.value(), "Пользователь с данным email не найден"));
@@ -51,9 +64,9 @@ public class PersonController {
         return personDataService.getAnotherProfile(personId, anotherId);
     }
 
-    @PostMapping("/search")
-    public ResponseEntity<?> searchPerson(@RequestBody SearchDto dto) {
-        return personDataService.searchPerson(dto);
+    @PostMapping("/search{id}")
+    public ResponseEntity<?> searchPerson(@PathVariable("id") Long id, @RequestBody SearchDto dto) {
+        return personDataService.searchPerson(id, dto);
     }
 
 }

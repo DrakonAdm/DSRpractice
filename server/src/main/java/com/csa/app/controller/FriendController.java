@@ -19,8 +19,8 @@ import java.util.List;
 public class FriendController {
     private final FriendService friendService;
 
-    @GetMapping("/{personId}")
-    public ResponseEntity<?> getFriendsAsBriefPersonDto(@PathVariable("personId") Long personId) {
+    @GetMapping("/personId")
+    public ResponseEntity<?> getFriendsAsBriefPersonDto(@RequestParam("personId") Long personId) {
         try {
             List<BriefPersonDto> friendsList = friendService.getFriendsList(personId);
 
@@ -42,8 +42,8 @@ public class FriendController {
         return ResponseEntity.ok(message);
     }
 
-    @GetMapping("/unseen-invite-friends/{personId}")
-    public ResponseEntity<?> getUnseenInviteFriends(@PathVariable("personId") Long personId) {
+    @GetMapping("/unseen-invite-friends/personId")
+    public ResponseEntity<?> getUnseenInviteFriends(@RequestParam("personId") Long personId) {
         try {
             List<InviteFriendDto> unseenInviteFriends = friendService.getUnseenInviteFriends(personId);
             return ResponseEntity.ok(unseenInviteFriends);

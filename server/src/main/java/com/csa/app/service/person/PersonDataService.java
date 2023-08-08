@@ -1,6 +1,7 @@
 package com.csa.app.service.person;
 
 import com.csa.app.dto.request.PersonDto;
+import com.csa.app.dto.request.PersonDtoRequest;
 import com.csa.app.dto.request.search.SearchDto;
 import com.csa.app.dto.response.BriefPersonDto;
 import com.csa.app.dto.response.PersonProfileDto;
@@ -30,7 +31,7 @@ public class PersonDataService {
         }
     }
 
-    public ResponseEntity<?> updateData(PersonDto dto) {
+    public ResponseEntity<?> updateData(PersonDtoRequest dto) {
         return personService.updateData(dto);
     }
 
@@ -39,11 +40,17 @@ public class PersonDataService {
         return person.map(value -> new BriefPersonDto(value.getId(), value.getName(), value.getSurname(), value.getDate())).orElse(null);
     }
 
+    public PersonProfileDto getProfile(String email) {
+        var person = personService.getUserByUsername(email);
+        return person.map(value -> new PersonProfileDto(value.getId(), value.getUsername(), value.getName(), value.getSurname(), value.getDate(),
+                value.getPhone(), value.getCity(), value.getCountry(), value.getDescription())).orElse(null);
+    }
+
     public ResponseEntity<?> getAnotherProfile(Long personId, Long anotherId) {
         return personService.getAnotherProfile(personId, anotherId);
     }
 
-    public ResponseEntity<?> searchPerson(SearchDto dto) {
-        return personService.searchPerson(dto);
+    public ResponseEntity<?> searchPerson(Long id, SearchDto dto) {
+        return personService.searchPerson(id, dto);
     }
 }

@@ -1,9 +1,11 @@
 package com.csa.app.service.person;
 
+import com.csa.app.dto.request.PersonDtoRequest;
 import com.csa.app.dto.response.AnotherProfileDto;
 import com.csa.app.dto.response.BriefPersonDto;
 import com.csa.app.dto.request.PersonDto;
 import com.csa.app.dto.request.RegisterPersonDto;
+import com.csa.app.dto.response.PersonProfileDto;
 import com.csa.app.dto.response.exception.AppErrorDto;
 import com.csa.app.dto.request.search.SearchDto;
 import com.csa.app.entity.model.Person;
@@ -77,7 +79,8 @@ public class PersonService implements UserDetailsService {
         }
     }
 
-    public ResponseEntity<?> updateData(PersonDto dto) {
+    public ResponseEntity<?> updateData(PersonDtoRequest dto) {
+        System.out.println("-----------------------------Go PersonDtoRequest");
         Optional<Person> optionalPerson = personRepository.findById(dto.getId());
         if (optionalPerson.isPresent()) {
             Person person = optionalPerson.orElseThrow();
@@ -89,7 +92,8 @@ public class PersonService implements UserDetailsService {
             if (dto.getCountry() != null) person.setCountry(dto.getCountry());
             if (dto.getDescription() != null) person.setDescription(dto.getDescription());
             personRepository.save(person);
-            return ResponseEntity.ok(new PersonDto(person.getId(), person.getUsername(), person.getName(), person.getSurname(), person.getDate()));
+            return ResponseEntity.ok(new PersonProfileDto(person.getId(), person.getUsername(), person.getName(), person.getSurname(), person.getDate(),
+                    person.getPhone(), person.getCity(), person.getCountry(), person.getDescription()));
         } else {
             return new ResponseEntity<>(new AppErrorDto(HttpStatus.BAD_REQUEST.value(), "Пользователь не существует"), HttpStatus.BAD_REQUEST);
         }
@@ -128,14 +132,15 @@ public class PersonService implements UserDetailsService {
         }
     }
 
-    public ResponseEntity<?> searchPerson(SearchDto dto) {
+    public ResponseEntity<?> searchPerson(Long id, SearchDto dto) {
         List<Person> searchResults = personRepository.findAll((Sort) PersonSpecifications.withSearchCriteria(dto));
 
         if (searchResults.isEmpty()) {
-            return ResponseEntity.ok("По вашему запросу пользоваели не найдены");
+            return ResponseEntity.ok("По вашему запросу пользователи не найдены");
         }
 
         List<BriefPersonDto> briefPersonDto = searchResults.stream()
+                .filter(person -> !person.getId().equals(id))
                 .map(person -> new BriefPersonDto(
                         person.getId(),
                         person.getName(),

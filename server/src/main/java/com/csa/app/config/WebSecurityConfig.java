@@ -21,35 +21,39 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
+import org.springframework.web.servlet.config.annotation.CorsRegistry;
+import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 import java.util.Arrays;
+import java.util.List;
 
 @Configuration
 @EnableWebSecurity
-public class WebSecurityConfig {
+public class WebSecurityConfig{
 
     @Bean
     public SecurityFilterChain configure(HttpSecurity http, JWTFilter jwtFilter) throws Exception {
         http
-                .cors(cors -> cors.configurationSource(corsConfigurationSource()))
                 .csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(requests -> requests
                         .requestMatchers(HttpMethod.POST, "/api-auth/login", "/api-auth/auth", "/api-auth/registration").permitAll()
                         .requestMatchers(HttpMethod.GET,  "/api-auth/me").authenticated()
                         .requestMatchers(HttpMethod.POST, "/api-auth/logout").authenticated()
-                        .requestMatchers(HttpMethod.GET, "/api-dataPerson/profile", "/api-dataPerson/by-username").authenticated()
+                        .requestMatchers(HttpMethod.GET, "/api-dataPerson/profile", "/api-dataPerson/by-username", "/api-dataPerson/another-profile").authenticated()
                         .requestMatchers(HttpMethod.POST, "/api-dataPerson/search").authenticated()
-                        .requestMatchers(HttpMethod.PUT, "/api-dataPerson/{id}/password", "/api-dataPerson/update").authenticated()
-                        .requestMatchers(HttpMethod.GET, "/api-friends/unseen-invite-friends/{personId}", "/api-friends/{personId}").authenticated()
+                        .requestMatchers(HttpMethod.POST, "/api-dataPerson/updatePassword", "/api-dataPerson/update").authenticated()
+                        .requestMatchers(HttpMethod.GET, "/api-friends/unseen-invite-friends/personId", "/api-friends/personId").authenticated()
                         .requestMatchers(HttpMethod.POST, "/api-friends/remove-friendship", "/api-friends/add-friendship", "/api-friends/create-friendship", "/api-friends/delete-invite").authenticated()
                         .requestMatchers(HttpMethod.GET,  "/api-message/messages/{senderId}/{recipientId}/count", "/api-message/messages/{senderId}/{recipientId}", "/api-message/messages/{id}").authenticated()
                         .anyRequest().denyAll())
+                .cors(cors -> cors.configurationSource(corsConfigurationSource()))
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .headers(httpSecurityHeadersConfigurer -> httpSecurityHeadersConfigurer.frameOptions(HeadersConfigurer.FrameOptionsConfig::disable))
                 .exceptionHandling(httpSecurityExceptionHandlingConfigurer -> httpSecurityExceptionHandlingConfigurer.authenticationEntryPoint(new HttpStatusEntryPoint(HttpStatus.UNAUTHORIZED)))
                 .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);
         return http.build();
     }
+
 
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
@@ -58,7 +62,7 @@ public class WebSecurityConfig {
         configuration.addAllowedMethod("*");
         configuration.addAllowedHeader("*");
         configuration.setAllowCredentials(true);
-        configuration.setMaxAge(3600L);
+        configuration.setMaxAge(1000L);
 
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", configuration);

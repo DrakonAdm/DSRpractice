@@ -19,27 +19,57 @@ public class PersonSpecifications {
     }
 
     public static Specification<Person> withName(String name) {
-        return (root, query, cb) -> cb.like(cb.lower(root.get("name")), "%" + name.toLowerCase() + "%");
+        return (root, query, cb) ->{
+            if(name == null || name.length() == 0){
+                return null;
+            }
+            return cb.like(cb.lower(root.get("name")), "%" + name.toLowerCase() + "%");
+        };
     }
 
     public static Specification<Person> withSurname(String surname) {
-        return (root, query, cb) -> cb.like(cb.lower(root.get("surname")), "%" + surname.toLowerCase() + "%");
+        return (root, query, cb) ->{
+            if(surname == null || surname.length() == 0){
+                return null;
+            }
+            return cb.like(cb.lower(root.get("surname")), "%" + surname.toLowerCase() + "%");
+        };
     }
 
     public static Specification<Person> withDate(LocalDate date) {
-        return (root, query, cb) -> cb.equal(root.get("date"), date);
+        return (root, query, cb) ->{
+            if(date == null){
+                return null;
+            }
+            return cb.equal(root.get("date"), date);
+        };
     }
 
     public static Specification<Person> withPhone(String phone) {
-        return (root, query, cb) -> cb.like(cb.lower(root.get("phone")), "%" + phone.toLowerCase() + "%");
+        return (root, query, cb) ->{
+            if(phone == null || phone.length() == 0){
+                return null;
+            }
+            return cb.like(cb.lower(root.get("phone")), "%" + phone.toLowerCase() + "%");
+        };
     }
 
     public static Specification<Person> withCity(String city) {
-        return (root, query, cb) -> cb.like(cb.lower(root.get("city")), "%" + city.toLowerCase() + "%");
+        return (root, query, cb) ->{
+            if(city == null || city.length() == 0){
+                return null;
+            }
+            return cb.like(cb.lower(root.get("city")), "%" + city.toLowerCase() + "%");
+        };
     }
 
     public static Specification<Person> withCountry(String country) {
-        return (root, query, cb) -> cb.like(cb.lower(root.get("country")), "%" + country.toLowerCase() + "%");
+        return (root, query, cb) ->{
+            if(country == null || country.length() == 0){
+                return null;
+            }
+            return cb.like(cb.lower(root.get("country")), "%" + country.toLowerCase() + "%");
+        };
     }
 
     public static Specification<Person> withBirthYear(Integer birthYear) {
